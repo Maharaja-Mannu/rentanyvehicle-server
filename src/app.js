@@ -6,7 +6,12 @@ const vehicleRouter = require('./routers/vehicle')
 const userRouter = require('./routers/user')
 const app = express()
 app.use(express.static(path.join(__dirname, '../public')))
+app.use(express.static(path.join(__dirname, '../build')))
 app.use(express.json())
+app.get('/', function (req, res) {
+    res.sendFile(path.join(__dirname, '../build', 'index.html'));
+});
+
 app.use(vehicleRouter)
 app.use(userRouter)
 // error-handling middleware function

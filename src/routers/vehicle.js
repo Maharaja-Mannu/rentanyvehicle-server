@@ -5,16 +5,28 @@ const Vehicle = require('../models/vehicle')
 const auth = require('../middleware/auth')
 const router = express.Router()
 
-router.post('/', async (req, res) => {
+router.post('/vehicle', async (req, res) => {
     const data = await Vehicle.find({ origin: req.body.origin})
     res.send({ data })
 })
 
-router.get('/my-account', auth, async (req, res) => {
+router.get('/vehicle/:id', async (req, res) => {
+    try {
+        const data = await Vehicle.findOne({ _id: req.params.id })
+        if (!data) {
+            return res.status(400).send()
+        }
+        res.status(200).send({ data })
+    } catch (error) {
+        res.status(500).send(error.message)
+    }
+})
+
+router.get('/user/ads', auth, async (req, res) => {
     try {
         const data = await Vehicle.find({ owner: req.user._id })
         if (!data) {
-            return res.status(404).send()
+            return res.status(400).send()
         }
         res.send({ data })
     } catch (error) {
@@ -50,14 +62,17 @@ router.post('/submitad', auth, upload.single('images'), async (req, res, next) =
     }
 })
 
+// update ad
 router.patch('/vehicle/:id', auth, async (req, res) => {
+    delete req.body._id
+    delete req.body.__v
+    delete req.body.createdAt
+    delete req.body.updatedAt
     const updates = Object.keys(req.body)
-    const allowedUpdates = ['images']
+    const allowedUpdates = ['_id', 'brand', 'category', 'images', 'model', 'origin', 'reg_number', 'owner']
     const isValidOperation = updates.every(update => allowedUpdates.includes(update))
     if (!isValidOperation) {
-        return res.status(400).send({
-            error: 'Invalid update'
-        })
+        return res.status(400).send('Invalid update')
     }
     try {
         const data = await Vehicle.findOne({
@@ -68,7 +83,7 @@ router.patch('/vehicle/:id', auth, async (req, res) => {
         }
         updates.forEach(update => data[update] = req.body[update])
         await data.save()
-        res.send(data)
+        res.send("Updated Successfully!")
     } catch (error) {
         res.status(400).send(error.message)
     }

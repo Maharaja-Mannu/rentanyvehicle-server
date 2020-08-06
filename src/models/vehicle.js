@@ -38,5 +38,12 @@ const vehicleSchema = new mongoose.Schema({
 }, {
     timestamps: true
 })
+vehicleSchema.methods.toJSON = function () {
+    const vehicle = this
+    const vehicleObject = vehicle.toObject()
+    delete vehicleObject.owner
+    return vehicleObject
+}
+
 const Vehicle = mongoose.model('Vehicle', vehicleSchema)
 module.exports = Vehicle
