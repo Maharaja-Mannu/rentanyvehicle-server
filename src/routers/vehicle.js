@@ -1,6 +1,6 @@
 const express = require('express')
 const multer = require('multer')
-const sharp = require('sharp')
+// const sharp = require('sharp')
 const Vehicle = require('../models/vehicle')
 const auth = require('../middleware/auth')
 const router = express.Router()
