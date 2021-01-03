@@ -2,3 +2,5 @@
 /.env
 yarn-error.log
 .git
+/build
+/public

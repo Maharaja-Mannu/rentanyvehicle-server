@@ -4,6 +4,9 @@ const bcrypt = require('bcryptjs')
 const jwt = require('jsonwebtoken')
 
 const userSchema = new mongoose.Schema({
+    userid: {
+        type: String,
+    },
     name: {
         type: String,
         required: true,
@@ -16,7 +19,6 @@ const userSchema = new mongoose.Schema({
     },
     password: {
         type: String,
-        required: true,
         minlength: 8,
         validate(value) {
             if(value.toLowerCase().includes('password')) {

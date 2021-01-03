@@ -1,11 +1,12 @@
 const path = require('path')
 const express = require('express')
+const {OAuth2Client} = require('google-auth-library')
 const User = require('../models/user')
 const auth = require('../middleware/auth')
 
 const router = new express.Router()
 
-
+const CLIENT_ID = '819305716493-gk2f4e02p4cdd95u3c66ud8vor8i37bd.apps.googleusercontent.com'
 
 router.post('/signup', async (req, res) => {
     const user = new User(req.body)
@@ -20,6 +21,36 @@ router.post('/signup', async (req, res) => {
     }
 })
 
+router.post('/loginwithgoogle', async (req, res) => {
+    const client = new OAuth2Client(CLIENT_ID)
+    async function verify() {
+        const ticket = await client.verifyIdToken({
+            idToken: req.body.token,
+            audience: CLIENT_ID,  // Specify the CLIENT_ID of the app that accesses the backend
+        });
+        const payload = ticket.getPayload();
+        const userid = payload['sub'];
+        const user = new User({
+            userid: userid,
+            name: payload.name,
+            username: payload.email,
+        })
+        try {
+            const savedUser = await User.findOne({userid}).exec()
+            if (!savedUser) {
+                console.log(user)
+                await user.save()
+            }
+            const token = await user.generateAuthToken()
+            res.send({token})
+        } catch (error) {
+            res.status(400).send(error.message)
+        }
+        
+    }
+    verify().catch(console.error);
+   
+})
 
 router.post('/signin', async (req, res) => {
     

@@ -12,7 +12,7 @@ router.get('/vehicle/:category/:origin/:dest', async (req, res) => {
     // }
     query = {$and: [{category: req.params.category}, {origin: req.params.origin}]}
     try {
-        const data = await Vehicle.find(query)
+        const data = await Vehicle.find(query, 'category brand origin images')
         if (!data) return res.status(400).send("Invalid request!")
         res.send({ data })
     } catch (error) {
@@ -28,13 +28,13 @@ router.post('/vehicle/:id', async (req, res) => {
         }
         res.status(200).send({ data })
     } catch (error) {
-        res.status(400).send("Bad Request")
+        res.status(500).send(error.message)
     }
 })
 
 router.post('/user/ads', auth, async (req, res) => {
     try {
-        const data = await Vehicle.find({ owner: req.user._id })
+        const data = await Vehicle.find({ owner: req.user._id }, 'category brand model reg_number origin images')
         if (!data) {
             return res.status(400).send("Invalid request!")
         }
@@ -68,18 +68,15 @@ router.post('/submitad', auth, upload.single('images'), async (req, res, next) =
         await vehicle.save()
         res.status(201).send(vehicle)
     } catch (error) {
-        res.status(500).send(error.message)
+        res.status(400).send(error.message)
     }
 })
 
 // update ad
 router.patch('/vehicle/:id', auth, async (req, res) => {
     delete req.body._id
-    delete req.body.__v
-    delete req.body.createdAt
-    delete req.body.updatedAt
     const updates = Object.keys(req.body)
-    const allowedUpdates = ['brand', 'category', 'images', 'model', 'origin', 'reg_number', 'owner']
+    const allowedUpdates = ['brand', 'category', 'images', 'model', 'origin', 'reg_number']
     const isValidOperation = updates.every(update => allowedUpdates.includes(update))
     if (!isValidOperation) {
         return res.status(400).send('Invalid update')
@@ -100,13 +97,12 @@ router.patch('/vehicle/:id', auth, async (req, res) => {
 })
 
 router.delete('/vehicle/:id', auth, async (req, res) => {
-
     try {
         const data = await Vehicle.findOneAndDelete({ _id: req.params.id, owner: req.user._id })
         if (!data) {
             return res.status(400).send("Invalid request!")
         }
-        res.send()
+        res.send({ data })
     } catch (error) {
         res.status(500).send(error.message)
     }
