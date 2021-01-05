@@ -5,7 +5,7 @@ const Vehicle = require('../models/vehicle')
 const auth = require('../middleware/auth')
 const router = express.Router()
 
-router.get('/vehicle/:category/:origin/:dest', async (req, res) => {
+router.get('/search/:category/:origin/:dest', auth, async (req, res) => {
     let query
     // for(param in req.params) {
     //     console.log(req.params[param])
@@ -13,34 +13,19 @@ router.get('/vehicle/:category/:origin/:dest', async (req, res) => {
     query = {$and: [{category: req.params.category}, {origin: req.params.origin}]}
     try {
         const data = await Vehicle.find(query, 'category brand origin images')
-        if (!data) return res.status(400).send("Invalid request!")
         res.send({ data })
     } catch (error) {
-        res.status(500).send(error.message)
+        res.status(400).send("Invalid request!")
     }
 })
 
-router.post('/vehicle/:id', async (req, res) => {
-    try {
-        const data = await Vehicle.findOne({ _id: req.params.id })
-        if (!data) {
-            return res.status(400).send("Invalid request!")
-        }
-        res.status(200).send({ data })
-    } catch (error) {
-        res.status(500).send(error.message)
-    }
-})
 
-router.post('/user/ads', auth, async (req, res) => {
+router.get('/mine', auth, async (req, res) => {
     try {
         const data = await Vehicle.find({ owner: req.user._id }, 'category brand model reg_number origin images')
-        if (!data) {
-            return res.status(400).send("Invalid request!")
-        }
         res.send({ data })
     } catch (error) {
-        res.status(500).send(error.message)
+        res.status(400).send("Invalid request!")
     }
 })
 
@@ -56,7 +41,7 @@ const upload = multer({
         cb(undefined, true)
     }
 })
-router.post('/submitad', auth, upload.single('images'), async (req, res, next) => {
+router.post('/new', auth, upload.single('images'), async (req, res, next) => {
     // if we want to store buffer in database
     //const buffer = await sharp(req.file.buffer).resize({ width: 250, height: 250 }).png().toBuffer()
     const vehicle = new Vehicle({
@@ -72,8 +57,16 @@ router.post('/submitad', auth, upload.single('images'), async (req, res, next) =
     }
 })
 
+router.get('/:id', async (req, res) => {
+    try {
+        const data = await Vehicle.findOne({ _id: req.params.id })
+        res.status(200).send({ data })
+    } catch (error) {
+        res.status(400).send('Invalid Request!')
+    }
+})
 // update ad
-router.patch('/vehicle/:id', auth, async (req, res) => {
+router.patch('/:id', auth, async (req, res) => {
     delete req.body._id
     const updates = Object.keys(req.body)
     const allowedUpdates = ['brand', 'category', 'images', 'model', 'origin', 'reg_number']
@@ -85,26 +78,20 @@ router.patch('/vehicle/:id', auth, async (req, res) => {
         const data = await Vehicle.findOne({
             _id: req.params.id, owner: req.user._id
         })
-        if (!data) {
-            return res.status(400).send("Invalid request!")
-        }
         updates.forEach(update => data[update] = req.body[update])
         await data.save()
         res.send({ data })
     } catch (error) {
-        res.status(500).send(error.message)
+        res.status(400).send('Invalid Request!')
     }
 })
 
-router.delete('/vehicle/:id', auth, async (req, res) => {
+router.delete('/:id', auth, async (req, res) => {
     try {
         const data = await Vehicle.findOneAndDelete({ _id: req.params.id, owner: req.user._id })
-        if (!data) {
-            return res.status(400).send("Invalid request!")
-        }
         res.send({ data })
     } catch (error) {
-        res.status(500).send(error.message)
+        res.status(400).send("Invalid request!")
     }
 })
 

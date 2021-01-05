@@ -12,7 +12,7 @@ app.get('/', function (req, res) {
     res.sendFile(path.join(__dirname, '../build', 'index.html'));
 });
 
-app.use(vehicleRouter)
+app.use('/vehicle', vehicleRouter)
 app.use(userRouter)
 // error-handling middleware function
 app.use((err, req, res, next) => {

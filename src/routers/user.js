@@ -24,18 +24,18 @@ router.post('/signup', async (req, res) => {
 router.post('/loginwithgoogle', async (req, res) => {
     const client = new OAuth2Client(CLIENT_ID)
     async function verify() {
-        const ticket = await client.verifyIdToken({
-            idToken: req.body.token,
-            audience: CLIENT_ID,  // Specify the CLIENT_ID of the app that accesses the backend
-        });
-        const payload = ticket.getPayload();
-        const userid = payload['sub'];
-        const user = new User({
-            userid: userid,
-            name: payload.name,
-            username: payload.email,
-        })
         try {
+            const ticket = await client.verifyIdToken({
+                idToken: req.body.token,
+                audience: CLIENT_ID,  // Specify the CLIENT_ID of the app that accesses the backend
+            });
+            const payload = ticket.getPayload();
+            const userid = payload['sub'];
+            const user = new User({
+                userid: userid,
+                name: payload.name,
+                username: payload.email,
+            })
             const savedUser = await User.findOne({userid}).exec()
             if (!savedUser) {
                 console.log(user)
@@ -73,7 +73,7 @@ router.post('/user/logout', auth, async (req, res) => {
         await req.user.save()
         res.send('Successfully logged out.')
     } catch (error) {
-        res.status(500).send(error.message)
+        res.status(400).send(error.message)
     }
 })
 
@@ -84,7 +84,7 @@ router.post('/user/logoutAll', auth, async (req, res) => {
        await req.user.save()
        res.send()
    } catch (error) {
-       res.status(500).send()
+       res.status(400).send()
    }
 })
 
@@ -122,7 +122,7 @@ router.delete('/user/me', auth, async (req, res) => {
        res.send(req.user)
 
    } catch (error) {
-       res.status(500).send()
+       res.status(400).send()
    }
 })
 
