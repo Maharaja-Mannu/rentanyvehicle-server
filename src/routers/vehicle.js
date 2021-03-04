@@ -5,7 +5,7 @@ const Vehicle = require('../models/vehicle')
 const auth = require('../middleware/auth')
 const router = express.Router()
 
-router.get('/search/:category/:origin/:dest', auth, async (req, res) => {
+router.get('/search/:category/:origin/:dest', async (req, res) => {
     let query
     // for(param in req.params) {
     //     console.log(req.params[param])

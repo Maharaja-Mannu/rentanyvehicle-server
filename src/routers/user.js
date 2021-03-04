@@ -38,7 +38,6 @@ router.post('/loginwithgoogle', async (req, res) => {
             })
             const savedUser = await User.findOne({userid}).exec()
             if (!savedUser) {
-                console.log(user)
                 await user.save()
             }
             const token = await user.generateAuthToken()
@@ -89,7 +88,7 @@ router.post('/user/logoutAll', auth, async (req, res) => {
 })
 
 // fetch user profile
-router.get('/me', auth, async (req, res) => {
+router.get('/user/me', auth, async (req, res) => {
     
     res.send({
         name: req.user.name
@@ -98,7 +97,7 @@ router.get('/me', auth, async (req, res) => {
 })
 
 // update user profile
-router.patch('/user/update', auth, async (req, res) => {
+router.patch('/user/me', auth, async (req, res) => {
 
     const updates = Object.keys(req.body) // taking updates value
     const allowedUpdates = ['name', 'phone', 'password'] // fields are allowed to update

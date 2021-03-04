@@ -1,6 +1,5 @@
 /node_modules
 /.env
-yarn-error.log
 .git
 /build
 /public

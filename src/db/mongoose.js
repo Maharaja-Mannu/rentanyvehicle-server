@@ -15,13 +15,13 @@ const connectToDatabase = async () => {
 }
 connectToDatabase()
 
-// mongoose.connection.on('connected', () => {
-//     console.log('Connected to Database')
-// })
+mongoose.connection.on('connected', () => {
+    console.log('Connected to Database')
+})
 
-// mongoose.connection.on('disconnected', () => {
-//     console.log('Sorry, Disconnected to Database')
-// })
+mongoose.connection.on('disconnected', () => {
+    console.log('Sorry, Disconnected to Database')
+})
 
 // If error after initial connection
 mongoose.connection.on('error', err => {
